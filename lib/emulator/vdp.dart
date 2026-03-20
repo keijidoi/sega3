@@ -203,16 +203,17 @@ class Vdp {
     for (int col = 0; col < 32; col++) {
       int screenX = (col * 8 + hScroll) & 0xFF;
 
-      // Bit 7 of register[0]: disable horizontal scrolling for columns 24–31.
-      if (col >= 24 && (registers[0] & 0x80) != 0) {
+      // Bit 6 of register[0]: disable horizontal scrolling for top 2 rows (lines 0-15).
+      // Used by games to keep the HUD/score area fixed.
+      if (line < 16 && (registers[0] & 0x40) != 0) {
         screenX = col * 8;
       }
 
       int actualRow = tileRow;
       int actualFineY = fineY;
 
-      // Bit 6 of register[0]: disable vertical scrolling for first 8 tile columns.
-      if (line < 16 && (registers[0] & 0x40) != 0) {
+      // Bit 7 of register[0]: disable vertical scrolling for rightmost 8 columns (24-31).
+      if (col >= 24 && (registers[0] & 0x80) != 0) {
         actualRow = line ~/ 8;
         actualFineY = line % 8;
       }
