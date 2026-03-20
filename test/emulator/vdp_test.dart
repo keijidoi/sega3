@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sega3/emulator/vdp.dart';
 
@@ -95,7 +94,7 @@ void main() {
       vdp.writeControl(0x00);
       vdp.writeControl(0x00);
 
-      int first = vdp.readData();
+      vdp.readData(); // discard buffered value
       int second = vdp.readData();
       expect(second, 0xAA);
     });

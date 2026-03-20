@@ -11,7 +11,7 @@ class TestBus implements Bus {
   @override int ioRead(int port) => ioPorts[port & 0xFF] ?? 0xFF;
   @override void ioWrite(int port, int value) => ioPorts[port & 0xFF] = value & 0xFF;
   void loadAt(int address, List<int> data) {
-    for (int i = 0; i < data.length; i++) memory[(address + i) & 0xFFFF] = data[i] & 0xFF;
+    for (int i = 0; i < data.length; i++) { memory[(address + i) & 0xFFFF] = data[i] & 0xFF; }
   }
 }
 
@@ -198,7 +198,7 @@ void main() {
   test('DJNZ loop', () {
     bus.loadAt(0, [0x06, 0x03, 0x3C, 0x10, 0xFD]);
     cpu.step(); // LD B,3
-    for (int i = 0; i < 6; i++) cpu.step(); // 3x (INC A + DJNZ)
+    for (int i = 0; i < 6; i++) { cpu.step(); } // 3x (INC A + DJNZ)
     expect(cpu.regs.a, 3);
     expect(cpu.regs.b, 0);
   });

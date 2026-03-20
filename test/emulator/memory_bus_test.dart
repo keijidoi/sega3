@@ -16,7 +16,7 @@ void main() {
     }
     // Add TMR SEGA header
     final magic = 'TMR SEGA'.codeUnits;
-    for (int i = 0; i < magic.length; i++) rom[0x7FF0 + i] = magic[i];
+    for (int i = 0; i < magic.length; i++) { rom[0x7FF0 + i] = magic[i]; }
 
     memBus = MemoryBus(rom: rom, mapperType: MapperType.sega);
   });
