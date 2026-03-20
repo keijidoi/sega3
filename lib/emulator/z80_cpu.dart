@@ -361,8 +361,8 @@ class Z80CPU {
     bool carry = regs.flagC;
 
     if (regs.flagN) {
-      // After subtraction
-      if (regs.flagH || (a & 0x0F) > 9) {
+      // After subtraction: use H flag only for low nibble correction
+      if (regs.flagH) {
         correction |= 0x06;
       }
       if (carry || a > 0x99) {
@@ -1177,14 +1177,8 @@ class Z80CPU {
           _setReg16(p, _fetch16());
           return 14;
         } else {
-          if (p == 2) {
-            // ADD IX, rr
-            final rr = _getReg16DDFD(p, isIX);
-            setIXIY(_addIXIY(getIXIY(), rr));
-            return 15;
-          }
-          // ADD IX, rr
-          final rr = p == 2 ? getIXIY() : _getReg16(p);
+          // ADD IX/IY, rr (p=2 means IX/IY itself)
+          final rr = _getReg16DDFD(p, isIX);
           setIXIY(_addIXIY(getIXIY(), rr));
           return 15;
         }
