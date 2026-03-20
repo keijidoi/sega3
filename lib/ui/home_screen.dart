@@ -9,8 +9,7 @@ class HomeScreen extends StatelessWidget {
 
   Future<void> _loadRom(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['sms', 'sg'],
+      type: FileType.any,
     );
 
     if (result != null && result.files.single.path != null) {
