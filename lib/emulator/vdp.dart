@@ -192,7 +192,7 @@ class Vdp {
     int fineY = row % 8;
 
     for (int col = 0; col < 32; col++) {
-      int screenX = (col * 8 - hScroll) & 0xFF;
+      int screenX = (col * 8 + hScroll) & 0xFF;
 
       // Bit 7 of register[0]: disable horizontal scrolling for columns 24–31.
       if (col >= 24 && (registers[0] & 0x80) != 0) {
