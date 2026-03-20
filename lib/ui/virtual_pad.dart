@@ -14,21 +14,21 @@ class VirtualPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildDPad(),
-          _buildActionButtons(),
+          Flexible(child: _buildDPad()),
+          Flexible(child: _buildActionButtons()),
         ],
       ),
     );
   }
 
   Widget _buildDPad() {
-    return SizedBox(
-      width: 160,
-      height: 160,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 160, maxHeight: 160),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
