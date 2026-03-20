@@ -70,7 +70,6 @@ class _GameScreenState extends State<GameScreen>
         onSave: (slot) async {
           final state = _emulator.saveState();
           await SaveStateManager.saveToSlot(_romName, slot, state);
-          if (ctx.mounted) Navigator.pop(ctx);
         },
         onLoad: (slot) async {
           final state = await SaveStateManager.loadFromSlot(_romName, slot);
@@ -128,7 +127,7 @@ class _GameScreenState extends State<GameScreen>
   }
 }
 
-class _SaveLoadDialog extends StatelessWidget {
+class _SaveLoadDialog extends StatefulWidget {
   final String romName;
   final Future<void> Function(int slot) onSave;
   final Future<void> Function(int slot) onLoad;
@@ -140,25 +139,62 @@ class _SaveLoadDialog extends StatelessWidget {
   });
 
   @override
+  State<_SaveLoadDialog> createState() => _SaveLoadDialogState();
+}
+
+class _SaveLoadDialogState extends State<_SaveLoadDialog> {
+  List<bool> _slotStatus = [false, false, false];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatus();
+  }
+
+  Future<void> _loadStatus() async {
+    final status = await SaveStateManager.getSlotStatus(widget.romName);
+    if (mounted) setState(() { _slotStatus = status; _loading = false; });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('セーブ / ロード'),
-      content: Column(
+      content: _loading
+        ? const SizedBox(height: 80, child: Center(child: CircularProgressIndicator()))
+        : Column(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(3, (slot) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('スロット ${slot + 1}'),
+              Row(
+                children: [
+                  Icon(
+                    _slotStatus[slot] ? Icons.save : Icons.save_outlined,
+                    color: _slotStatus[slot] ? Colors.green : Colors.grey,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text('スロット ${slot + 1}'),
+                  if (_slotStatus[slot])
+                    const Text(' (データあり)',
+                      style: TextStyle(fontSize: 12, color: Colors.green)),
+                ],
+              ),
               Row(
                 children: [
                   TextButton(
-                    onPressed: () => onSave(slot),
+                    onPressed: () async {
+                      await widget.onSave(slot);
+                      if (mounted) await _loadStatus();
+                    },
                     child: const Text('セーブ'),
                   ),
                   TextButton(
-                    onPressed: () => onLoad(slot),
+                    onPressed: _slotStatus[slot] ? () => widget.onLoad(slot) : null,
                     child: const Text('ロード'),
                   ),
                 ],
