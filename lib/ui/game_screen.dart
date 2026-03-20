@@ -178,10 +178,10 @@ class _SaveLoadDialogState extends State<_SaveLoadDialog> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  Text('スロット ${slot + 1}'),
-                  if (_slotStatus[slot])
-                    const Text(' (データあり)',
-                      style: TextStyle(fontSize: 12, color: Colors.green)),
+                  Text('スロット ${slot + 1}',
+                    style: TextStyle(
+                      color: _slotStatus[slot] ? Colors.green : null,
+                    )),
                 ],
               ),
               Row(
