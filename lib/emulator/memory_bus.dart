@@ -58,16 +58,16 @@ class MemoryBus {
     if (address >= 0xC000) {
       _ram[address & 0x1FFF] = value;
 
-      // Check for bank register writes (mapped to RAM $FFFC-$FFFF)
-      if (_mapperType == MapperType.sega) {
-        int ramAddr = address & 0x1FFF;
-        if (ramAddr == 0x1FFC) {
+      // Bank register writes: only $FFFC-$FFFF trigger mapper changes,
+      // NOT their mirrors at $DFFC-$DFFF etc.
+      if (_mapperType == MapperType.sega && address >= 0xFFFC) {
+        if (address == 0xFFFC) {
           _ramControl = value;
-        } else if (ramAddr == 0x1FFD) {
+        } else if (address == 0xFFFD) {
           _slot0Bank = value % _pageCount;
-        } else if (ramAddr == 0x1FFE) {
+        } else if (address == 0xFFFE) {
           _slot1Bank = value % _pageCount;
-        } else if (ramAddr == 0x1FFF) {
+        } else if (address == 0xFFFF) {
           _slot2Bank = value % _pageCount;
         }
       }
