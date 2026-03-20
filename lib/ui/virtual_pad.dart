@@ -14,36 +14,33 @@ class VirtualPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Flexible(child: _buildDPad()),
-          Flexible(child: _buildActionButtons()),
+          Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: _buildDPad())),
+          Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: _buildActionButtons())),
         ],
       ),
     );
   }
 
   Widget _buildDPad() {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 160, maxHeight: 160),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _padButton(EmulatorButton.up, Icons.arrow_drop_up, 56),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _padButton(EmulatorButton.left, Icons.arrow_left, 56),
-              const SizedBox(width: 48, height: 48),
-              _padButton(EmulatorButton.right, Icons.arrow_right, 56),
-            ],
-          ),
-          _padButton(EmulatorButton.down, Icons.arrow_drop_down, 56),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _padButton(EmulatorButton.up, Icons.arrow_drop_up, 52),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _padButton(EmulatorButton.left, Icons.arrow_left, 52),
+            const SizedBox(width: 44, height: 44),
+            _padButton(EmulatorButton.right, Icons.arrow_right, 52),
+          ],
+        ),
+        _padButton(EmulatorButton.down, Icons.arrow_drop_down, 52),
+      ],
     );
   }
 
