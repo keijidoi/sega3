@@ -21,6 +21,11 @@ class Vdp {
   /// 256 × 192 pixels, 32-bit ARGB (Flutter-compatible).
   final Uint32List frameBuffer = Uint32List(256 * 192);
 
+  /// Per-pixel priority flag for current scanline (true = BG has priority over sprites).
+  final List<bool> _bgPriority = List<bool>.filled(256, false);
+  /// Per-pixel BG color index for current scanline (0 = transparent/backdrop).
+  final Uint8List _bgColorIdx = Uint8List(256);
+
   // ── Internal state ────────────────────────────────────────────────────────────
   int _addressRegister = 0; // 14-bit VRAM/CRAM address
   bool _writePending = false; // latch toggle
@@ -147,8 +152,8 @@ class Vdp {
     final line = _vCounter;
 
     if (line < 192) {
-      _renderSpriteLine(line);
       _renderBackgroundLine(line);
+      _renderSpriteLine(line);
     }
 
     if (line == 192) {
@@ -173,6 +178,10 @@ class Vdp {
   // ── Background rendering ──────────────────────────────────────────────────────
 
   void _renderBackgroundLine(int line) {
+    // Clear per-scanline priority/color buffers.
+    _bgPriority.fillRange(0, 256, false);
+    _bgColorIdx.fillRange(0, 256, 0);
+
     // Name table base address: register[2] bits [3:1] select 1 KB block within VRAM.
     int nameTableBase = (registers[2] & 0x0E) << 10;
     int hScroll = registers[8];
@@ -206,7 +215,7 @@ class Vdp {
       int tileIndex = word & 0x1FF;
       bool hFlip = (word & 0x200) != 0;
       bool vFlip = (word & 0x400) != 0;
-      // bool priority = (word & 0x1000) != 0;  // used in sprite compositing
+      bool priority = (word & 0x1000) != 0;
       int palette = (word & 0x800) != 0 ? 16 : 0;
 
       int tileY = vFlip ? (7 - actualFineY) : actualFineY;
@@ -227,6 +236,8 @@ class Vdp {
 
         int x = (screenX + px) & 0xFF;
         if (x < 256 && line < 192) {
+          _bgPriority[x] = priority;
+          _bgColorIdx[x] = colorIdx;
           int cramValue = cram[palette + colorIdx];
           frameBuffer[line * 256 + x] = _cramToArgb(cramValue);
         }
@@ -335,6 +346,10 @@ class Vdp {
           _setSpriteCollisionFlag();
         }
         occupied[x] = true;
+
+        // BG priority: if the BG tile has priority bit set AND its color
+        // index is non-zero, the BG pixel is in front of the sprite.
+        if (_bgPriority[x] && _bgColorIdx[x] != 0) continue;
 
         // Sprites always use the second palette (CRAM entries 16–31).
         int cramValue = cram[16 + colorIdx];

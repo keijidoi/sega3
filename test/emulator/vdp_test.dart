@@ -105,6 +105,11 @@ void main() {
     vdp.writeControl(0x06); vdp.writeControl(0x80); // reg0 = 0x06
     vdp.writeControl(0x00); vdp.writeControl(0x81); // reg1 = 0x00
     vdp.writeControl(0xFF); vdp.writeControl(0x82); // reg2 = 0xFF (name table at 0x3800)
+    vdp.writeControl(0xFF); vdp.writeControl(0x85); // reg5 = 0xFF (SAT at 0x3F00, away from tile data)
+
+    // Write SAT terminator so no sprites render
+    vdp.writeControl(0x00); vdp.writeControl(0x7F); // VRAM write at 0x3F00
+    vdp.writeData(0xD0); // sprite list terminator
 
     // Write a tile pattern to VRAM at tile 0
     vdp.writeControl(0x00); vdp.writeControl(0x40); // VRAM write at 0x0000
