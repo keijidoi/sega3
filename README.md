@@ -39,12 +39,31 @@ The following classic titles are primary targets for compatibility:
 - **Fantasy Zone** - ファンタジーゾーン
 - **Shinobi** - 忍 -SHINOBI-
 
+## Development Environment / 開発環境
+
+| Tool | Version |
+|------|---------|
+| Flutter | 3.38.9 (stable) |
+| Dart | 3.10.8 |
+| OS | Windows 11 |
+| IDE | VS Code |
+| AI Assistant | Claude Code (Claude Opus 4.6) |
+| Target SDK | Android SDK (API 30+) |
+
+### Dependencies / 依存パッケージ
+
+| Package | Purpose |
+|---------|---------|
+| `file_picker` | ROM file selection / ROMファイル選択 |
+| `path_provider` | Save state storage / セーブデータ保存 |
+| `flutter_pcm_sound` | PSG audio output / PSG音声出力 |
+
 ## Build / ビルド方法
 
 ### Prerequisites / 前提条件
 
 - Flutter SDK 3.10 or later / Flutter SDK 3.10 以降
-- Android SDK
+- Android SDK (API 30+)
 
 ### Build APK / APK ビルド
 
@@ -67,11 +86,23 @@ flutter run
 
 ```
 lib/
-  ├── cpu/          # Z80 CPU emulation / Z80 CPUエミュレーション
-  ├── vdp/          # Video Display Processor / ビデオディスプレイプロセッサ
-  ├── psg/          # Programmable Sound Generator / サウンドジェネレータ
-  ├── memory/       # Memory mapping / メモリマッピング
-  └── ui/           # Flutter UI and virtual gamepad / UI・仮想ゲームパッド
+  ├── emulator/
+  │   ├── z80_cpu.dart         # Z80 CPU (~700 opcodes) / Z80 CPU エミュレーション
+  │   ├── z80_registers.dart   # Z80 register set / Z80 レジスタ
+  │   ├── vdp.dart             # Video Display Processor / VDP (Mode 4)
+  │   ├── psg.dart             # SN76489 sound / PSG サウンド
+  │   ├── memory_bus.dart      # Memory mapping & Sega mapper / メモリバス
+  │   ├── io_ports.dart        # I/O port routing / I/Oポート
+  │   ├── bus.dart             # CPU bus interface / バスインターフェース
+  │   ├── rom_header.dart      # ROM header parser / ROMヘッダ解析
+  │   ├── emulator.dart        # System integration / システム統合
+  │   └── save_state.dart      # Save/load state / セーブステート管理
+  └── ui/
+      ├── game_screen.dart     # Game screen with ticker loop / ゲーム画面
+      ├── home_screen.dart     # ROM selection screen / ROM選択画面
+      ├── screen_painter.dart  # Frame buffer display / 画面描画
+      ├── virtual_pad.dart     # On-screen gamepad / 仮想ゲームパッド
+      └── audio_output.dart    # PCM audio output / 音声出力
 ```
 
 ## License / ライセンス
