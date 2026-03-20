@@ -29,9 +29,10 @@ class Vdp {
   int _statusRegister = 0;
   int _commandWord = 0; // bits 15-14 of the address word
 
+
   // ── Counters ──────────────────────────────────────────────────────────────────
   int _vCounter = 0;
-  int _lineInterruptCounter = 0; // counts down from register[10]
+  int _lineInterruptCounter = 0xFF; // counts down from register[10]; init high so it doesn't fire before game sets reg[10]
   bool _lineInterruptPending = false;
 
   // ── Public getters ────────────────────────────────────────────────────────────
@@ -114,10 +115,12 @@ class Vdp {
   // ── Status port ───────────────────────────────────────────────────────────────
 
   /// Read the VDP status register (port 0xBF on SMS).
-  /// Clears the status register and resets the address latch.
+  /// Clears the status register, clears the line-interrupt pending flag,
+  /// and resets the address latch.
   int readStatus() {
     int result = _statusRegister;
     _statusRegister = 0;
+    _lineInterruptPending = false; // reading status acknowledges line interrupt
     _writePending = false;
     return result;
   }

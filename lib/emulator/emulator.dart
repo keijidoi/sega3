@@ -60,6 +60,12 @@ class Emulator extends ChangeNotifier {
   /// The current frame buffer from the VDP: 256 × 192 pixels, 32-bit ARGB.
   Uint32List get frameBuffer => _vdp.frameBuffer;
 
+  /// Exposed for diagnostics/testing only.
+  Z80CPU get cpu => _cpu;
+
+  /// Exposed for diagnostics/testing only.
+  Vdp get vdp => _vdp;
+
   /// Run one full frame of emulation (262 scanlines).
   void runFrame() {
     for (int scanline = 0; scanline < _scanlinesPerFrame; scanline++) {
