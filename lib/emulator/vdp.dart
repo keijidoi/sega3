@@ -154,6 +154,15 @@ class Vdp {
     if (line < 192) {
       _renderBackgroundLine(line);
       _renderSpriteLine(line);
+
+      // Bit 5 of register[0]: mask left 8 pixels with backdrop color (CRAM[16+0]).
+      if ((registers[0] & 0x20) != 0) {
+        int backdrop = _cramToArgb(cram[16]);
+        int base = line * 256;
+        for (int x = 0; x < 8; x++) {
+          frameBuffer[base + x] = backdrop;
+        }
+      }
     }
 
     if (line == 192) {
