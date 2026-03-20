@@ -385,7 +385,7 @@ class Z80CPU {
     regs.a = a;
     regs.flagS = (a & 0x80) != 0;
     regs.flagZ = a == 0;
-    regs.flagH = ((regs.a ^ correction ^ a) & 0x10) != 0; // Simplified
+    regs.flagH = false; // H is reset after DAA per Z80 behavior
     regs.flagPV = _parity(a);
     regs.flagC = carry;
   }
@@ -402,7 +402,7 @@ class Z80CPU {
       case 2: // RES
         return value & ~(1 << bit) & 0xFF;
       case 3: // SET
-        return value | (1 << bit) & 0xFF;
+        return (value | (1 << bit)) & 0xFF;
       default: return value;
     }
   }
@@ -470,6 +470,7 @@ class Z80CPU {
 
   void nmi() {
     regs.halted = false;
+    regs.iff2 = regs.iff1;
     regs.iff1 = false;
     _push16(regs.pc);
     regs.pc = 0x0066;
