@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:sega3/emulator/emulator.dart';
 import 'package:sega3/ui/screen_painter.dart';
 import 'package:sega3/ui/virtual_pad.dart';
+import 'package:sega3/ui/audio_output.dart';
 import 'package:sega3/emulator/save_state.dart';
 
 class GameScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _GameScreenState extends State<GameScreen>
     with SingleTickerProviderStateMixin {
   late Emulator _emulator;
   late Ticker _ticker;
+  final AudioOutput _audio = AudioOutput();
   bool _paused = false;
   String get _romName => 'rom_${widget.romData.length}';
 
@@ -27,6 +29,7 @@ class _GameScreenState extends State<GameScreen>
     super.initState();
     _emulator = Emulator(widget.romData);
     _emulator.addListener(_onFrame);
+    _audio.init();
     _ticker = createTicker(_onTick);
     _ticker.start();
   }
@@ -34,6 +37,10 @@ class _GameScreenState extends State<GameScreen>
   void _onTick(Duration elapsed) {
     if (!_paused) {
       _emulator.runFrame();
+      final samples = _emulator.audioSamples;
+      if (samples != null) {
+        _audio.feed(samples);
+      }
     }
   }
 
@@ -47,6 +54,7 @@ class _GameScreenState extends State<GameScreen>
     _ticker.dispose();
     _emulator.removeListener(_onFrame);
     _emulator.dispose();
+    _audio.dispose();
     super.dispose();
   }
 

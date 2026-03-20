@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sega3/emulator/emulator.dart';
 
-class VirtualPad extends StatelessWidget {
+class VirtualPad extends StatefulWidget {
   final void Function(EmulatorButton) onButtonDown;
   final void Function(EmulatorButton) onButtonUp;
 
@@ -10,6 +11,24 @@ class VirtualPad extends StatelessWidget {
     required this.onButtonDown,
     required this.onButtonUp,
   });
+
+  @override
+  State<VirtualPad> createState() => _VirtualPadState();
+}
+
+class _VirtualPadState extends State<VirtualPad> {
+  final Set<EmulatorButton> _pressed = {};
+
+  void _onDown(EmulatorButton button) {
+    setState(() => _pressed.add(button));
+    HapticFeedback.lightImpact();
+    widget.onButtonDown(button);
+  }
+
+  void _onUp(EmulatorButton button) {
+    setState(() => _pressed.remove(button));
+    widget.onButtonUp(button);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,15 +82,16 @@ class VirtualPad extends StatelessWidget {
   }
 
   Widget _padButton(EmulatorButton button, IconData icon, double size) {
+    final isPressed = _pressed.contains(button);
     return GestureDetector(
-      onTapDown: (_) => onButtonDown(button),
-      onTapUp: (_) => onButtonUp(button),
-      onTapCancel: () => onButtonUp(button),
+      onTapDown: (_) => _onDown(button),
+      onTapUp: (_) => _onUp(button),
+      onTapCancel: () => _onUp(button),
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: Colors.grey[800],
+          color: isPressed ? Colors.grey[500] : Colors.grey[800],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: Colors.white, size: 40),
@@ -80,15 +100,16 @@ class VirtualPad extends StatelessWidget {
   }
 
   Widget _actionButton(EmulatorButton button, String label) {
+    final isPressed = _pressed.contains(button);
     return GestureDetector(
-      onTapDown: (_) => onButtonDown(button),
-      onTapUp: (_) => onButtonUp(button),
-      onTapCancel: () => onButtonUp(button),
+      onTapDown: (_) => _onDown(button),
+      onTapUp: (_) => _onUp(button),
+      onTapCancel: () => _onUp(button),
       child: Container(
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          color: Colors.red[700],
+          color: isPressed ? Colors.red[400] : Colors.red[700],
           shape: BoxShape.circle,
         ),
         child: Center(
@@ -100,15 +121,16 @@ class VirtualPad extends StatelessWidget {
   }
 
   Widget _startButton() {
+    final isPressed = _pressed.contains(EmulatorButton.start);
     return GestureDetector(
-      onTapDown: (_) => onButtonDown(EmulatorButton.start),
-      onTapUp: (_) => onButtonUp(EmulatorButton.start),
-      onTapCancel: () => onButtonUp(EmulatorButton.start),
+      onTapDown: (_) => _onDown(EmulatorButton.start),
+      onTapUp: (_) => _onUp(EmulatorButton.start),
+      onTapCancel: () => _onUp(EmulatorButton.start),
       child: Container(
         width: 80,
         height: 32,
         decoration: BoxDecoration(
-          color: Colors.grey[600],
+          color: isPressed ? Colors.grey[400] : Colors.grey[600],
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Center(

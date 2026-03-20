@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'package:sega3/emulator/bus.dart';
 import 'package:sega3/emulator/z80_cpu.dart';
 import 'package:sega3/emulator/vdp.dart';
@@ -60,6 +60,10 @@ class Emulator extends ChangeNotifier {
   /// The current frame buffer from the VDP: 256 × 192 pixels, 32-bit ARGB.
   Uint32List get frameBuffer => _vdp.frameBuffer;
 
+  /// The most recent audio samples from the PSG (Float64, -1..1).
+  Float64List? _lastAudioSamples;
+  Float64List? get audioSamples => _lastAudioSamples;
+
   /// Exposed for diagnostics/testing only.
   Z80CPU get cpu => _cpu;
 
@@ -83,7 +87,7 @@ class Emulator extends ChangeNotifier {
       }
     }
 
-    _psg.generateSamples(_samplesPerFrame);
+    _lastAudioSamples = _psg.generateSamples(_samplesPerFrame);
     notifyListeners();
   }
 
